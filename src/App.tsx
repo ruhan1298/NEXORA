@@ -1,46 +1,53 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AppProvider } from './context/AppContext';
-import Navigation from './components/Navigation';
-import Footer from './components/Footer';
+import { WalletProvider } from './context/WalletContext';
+import AppLayout from './components/AppLayout';
 import Home from './pages/Home';
 import Launchpad from './pages/Launchpad';
-import Explore from './pages/Explore';
+import Tokens from './pages/Tokens';
 import TokenDetails from './pages/TokenDetails';
-import ProjectDetails from './pages/ProjectDetails';
-import MLMCommunity from './pages/MLMCommunity';
-import Dashboard from './pages/Dashboard';
+import Trade from './pages/Trade';
+import Portfolio from './pages/Portfolio';
+import Community from './pages/Community';
 import Leaderboard from './pages/Leaderboard';
-import SubmitProject from './pages/SubmitProject';
-import Trading from './pages/Trading';
+import Submit from './pages/Submit';
 import Admin from './pages/Admin';
+import Discovery from './pages/Discovery';
+import MLMBuilder from './pages/MLMBuilder';
+import About from './pages/About';
+import Documentation from './pages/Documentation';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import RiskDisclosure from './pages/RiskDisclosure';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
-    <AppProvider>
+    <WalletProvider>
       <Router>
-        <div className="min-h-screen bg-navy-800">
-          <Navigation />
-          <main className="md:ml-64 pt-16 md:pt-0">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/launchpad" element={<Launchpad />} />
-              <Route path="/discover" element={<Explore />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/token/:id" element={<TokenDetails />} />
-              <Route path="/project/:id" element={<ProjectDetails />} />
-              <Route path="/mlm-community" element={<MLMCommunity />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
-              <Route path="/submit" element={<SubmitProject />} />
-              <Route path="/trading" element={<Trading />} />
-              <Route path="/admin" element={<Admin />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
+        <Routes>
+          <Route path="/" element={<AppLayout><Home /></AppLayout>} />
+          <Route path="/launchpad" element={<AppLayout><Launchpad /></AppLayout>} />
+          <Route path="/launchpad/:id" element={<AppLayout><Launchpad /></AppLayout>} />
+          <Route path="/tokens" element={<AppLayout><Tokens /></AppLayout>} />
+          <Route path="/tokens/:symbol" element={<AppLayout><TokenDetails /></AppLayout>} />
+          <Route path="/trade" element={<AppLayout><Trade /></AppLayout>} />
+          <Route path="/portfolio" element={<AppLayout><Portfolio /></AppLayout>} />
+          <Route path="/community" element={<AppLayout><Community /></AppLayout>} />
+          <Route path="/leaderboard" element={<AppLayout><Leaderboard /></AppLayout>} />
+          <Route path="/submit" element={<AppLayout><Submit /></AppLayout>} />
+          <Route path="/admin" element={<AppLayout><Admin /></AppLayout>} />
+          <Route path="/discovery" element={<AppLayout><Discovery /></AppLayout>} />
+          <Route path="/mlm-builder" element={<AppLayout><MLMBuilder /></AppLayout>} />
+          <Route path="/about" element={<AppLayout><About /></AppLayout>} />
+          <Route path="/documentation" element={<AppLayout><Documentation /></AppLayout>} />
+          <Route path="/terms" element={<AppLayout><Terms /></AppLayout>} />
+          <Route path="/privacy" element={<AppLayout><Privacy /></AppLayout>} />
+          <Route path="/risk-disclosure" element={<AppLayout><RiskDisclosure /></AppLayout>} />
+          <Route path="*" element={<AppLayout><NotFound /></AppLayout>} />
+        </Routes>
       </Router>
-    </AppProvider>
+    </WalletProvider>
   );
 }
 

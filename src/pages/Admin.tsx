@@ -1,295 +1,326 @@
 import React, { useState } from 'react';
-import { Users, FolderOpen, DollarSign, Settings, Check, X, Eye, Edit } from 'lucide-react';
-import { mockProjects } from '../data/mockData';
+import { Check, X, Search, Activity, Users, DollarSign, AlertCircle, TrendingUp, Server, Database } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 const Admin: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'projects' | 'tokens' | 'users' | 'settings'>('projects');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [userSearch, setUserSearch] = useState('');
 
-  const submissions = [
-    { id: 1, name: 'New Project Alpha', status: 'pending', submitted: '2024-10-10', submitter: 'user@example.com' },
-    { id: 2, name: 'DeFi Protocol X', status: 'pending', submitted: '2024-10-09', submitter: 'team@defi.io' },
-    { id: 3, name: 'Token Launch Y', status: 'approved', submitted: '2024-10-08', submitter: 'dev@token.io' },
-  ];
+  // Mock pending submissions
+  const [pendingSubmissions, setPendingSubmissions] = useState([
+    {
+      id: 'SUB-ABC123',
+      name: 'CryptoVault',
+      ticker: 'VAULT',
+      category: 'DeFi',
+      chain: 'Ethereum',
+      targetRaise: 750000,
+      submittedAt: new Date('2026-10-10'),
+      status: 'pending',
+    },
+    {
+      id: 'SUB-DEF456',
+      name: 'GameVerse',
+      ticker: 'GVERSE',
+      category: 'Gaming',
+      chain: 'Polygon',
+      targetRaise: 500000,
+      submittedAt: new Date('2026-10-09'),
+      status: 'pending',
+    },
+    {
+      id: 'SUB-GHI789',
+      name: 'SocialChain',
+      ticker: 'SOC',
+      category: 'Social',
+      chain: 'Solana',
+      targetRaise: 1000000,
+      submittedAt: new Date('2026-10-08'),
+      status: 'pending',
+    },
+  ]);
 
-  const tabs = [
-    { id: 'projects' as const, label: 'Projects', icon: FolderOpen },
-    { id: 'tokens' as const, label: 'Tokens', icon: DollarSign },
-    { id: 'users' as const, label: 'Users', icon: Users },
-    { id: 'settings' as const, label: 'Settings', icon: Settings },
-  ];
+  // Mock users
+  const [users, setUsers] = useState([
+    { id: 1, address: '0x7a3F...c91E', status: 'active', joined: '2026-09-01', volume: 125000 },
+    { id: 2, address: '0x5b2E...d82F', status: 'active', joined: '2026-09-05', volume: 89000 },
+    { id: 3, address: '0x9c4A...f73B', status: 'suspended', joined: '2026-09-10', volume: 45000 },
+    { id: 4, address: '0x1d8C...b64A', status: 'active', joined: '2026-09-15', volume: 67000 },
+    { id: 5, address: '0x4e7B...e95C', status: 'active', joined: '2026-09-20', volume: 156000 },
+  ]);
 
-  const handleApprove = (id: number) => {
-    alert(`Project ${id} approved (Demo)`);
+  const handleApprove = (id: string) => {
+    setPendingSubmissions(prev => prev.map(sub => 
+      sub.id === id ? { ...sub, status: 'approved' } : sub
+    ));
   };
 
-  const handleReject = (id: number) => {
-    alert(`Project ${id} rejected (Demo)`);
+  const handleReject = (id: string) => {
+    setPendingSubmissions(prev => prev.filter(sub => sub.id !== id));
   };
+
+  const toggleUserStatus = (id: number) => {
+    setUsers(prev => prev.map(user =>
+      user.id === id
+        ? { ...user, status: user.status === 'active' ? 'suspended' : 'active' }
+        : user
+    ));
+  };
+
+  const activityData = Array.from({ length: 7 }, (_, i) => ({
+    day: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
+    projects: Math.floor(Math.random() * 10) + 2,
+    users: Math.floor(Math.random() * 50) + 20,
+    volume: Math.floor(Math.random() * 500000) + 100000,
+  }));
+
+  const systemStatus = [
+    { name: 'API Server', status: 'operational', uptime: '99.9%' },
+    { name: 'Database', status: 'operational', uptime: '99.8%' },
+    { name: 'CDN', status: 'operational', uptime: '99.9%' },
+    { name: 'Blockchain Node', status: 'degraded', uptime: '98.5%' },
+  ];
+
+  const filteredSubmissions = pendingSubmissions.filter(sub =>
+    sub.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sub.ticker.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredUsers = users.filter(user =>
+    user.address.toLowerCase().includes(userSearch.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gradient mb-2">Admin Dashboard</h1>
-          <p className="text-gray-400">Manage platform submissions and configurations</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold mb-2">Admin Console</h1>
+        <p className="text-gray-400">Manage platform operations and submissions</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="glass-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-gray-400">Total Projects</span>
+            <Activity className="w-5 h-5 text-blue" />
+          </div>
+          <div className="text-3xl font-bold">12</div>
+          <div className="text-sm text-green mt-2">+2 this week</div>
         </div>
 
-        {/* Warning Banner */}
-        <div className="glass-card p-4 mb-8 border-l-4 border-yellow-500">
-          <p className="text-sm text-yellow-400">
-            ⚠️ Demo Admin Interface - This is a frontend demo only. Production deployment requires secure server-side authentication, authorization, and database integration.
-          </p>
+        <div className="glass-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-gray-400">Pending Reviews</span>
+            <AlertCircle className="w-5 h-5 text-yellow" />
+          </div>
+          <div className="text-3xl font-bold">{pendingSubmissions.length}</div>
+          <div className="text-sm text-gray-400 mt-2">Needs attention</div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="glass-card p-6">
-            <FolderOpen className="w-8 h-8 text-electric-blue mb-3" />
-            <div className="text-3xl font-bold text-white mb-1">{mockProjects.length}</div>
-            <div className="text-sm text-gray-400">Total Projects</div>
+        <div className="glass-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-gray-400">Total Users</span>
+            <Users className="w-5 h-5 text-purple" />
           </div>
-          <div className="glass-card p-6">
-            <Users className="w-8 h-8 text-electric-purple mb-3" />
-            <div className="text-3xl font-bold text-white mb-1">1,234</div>
-            <div className="text-sm text-gray-400">Registered Users</div>
+          <div className="text-3xl font-bold">2,456</div>
+          <div className="text-sm text-green mt-2">+18.2% this month</div>
+        </div>
+
+        <div className="glass-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-gray-400">Total Volume</span>
+            <DollarSign className="w-5 h-5 text-green" />
           </div>
-          <div className="glass-card p-6">
-            <DollarSign className="w-8 h-8 text-electric-pink mb-3" />
-            <div className="text-3xl font-bold text-white mb-1">$45.2K</div>
-            <div className="text-sm text-gray-400">Total Volume</div>
+          <div className="text-3xl font-bold">$12.6M</div>
+          <div className="text-sm text-green mt-2">+24.6% all time</div>
+        </div>
+      </div>
+
+      {/* Platform Activity Chart */}
+      <div className="glass-card p-6">
+        <h3 className="font-semibold mb-4">Platform Activity (Last 7 Days)</h3>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={activityData}>
+              <defs>
+                <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+              <XAxis dataKey="day" stroke="#666" tick={{ fill: '#999' }} />
+              <YAxis stroke="#666" tick={{ fill: '#999' }} />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#0D1424', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+              />
+              <Area
+                type="monotone"
+                dataKey="volume"
+                stroke="#3B82F6"
+                fillOpacity={1}
+                fill="url(#colorVolume)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Pending Submissions */}
+        <div className="glass-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold">Pending Project Submissions</h3>
+            <span className="px-2 py-1 bg-yellow/20 text-yellow rounded text-xs">
+              {pendingSubmissions.length} pending
+            </span>
           </div>
-          <div className="glass-card p-6">
-            <Check className="w-8 h-8 text-green-400 mb-3" />
-            <div className="text-3xl font-bold text-white mb-1">5</div>
-            <div className="text-sm text-gray-400">Pending Reviews</div>
+
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search submissions..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm outline-none focus:border-blue/50"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {filteredSubmissions.map((submission) => (
+              <div key={submission.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <div className="font-semibold">{submission.name}</div>
+                    <div className="text-sm text-gray-400">{submission.ticker} • {submission.category}</div>
+                  </div>
+                  <span className="text-xs bg-blue/20 text-blue px-2 py-1 rounded">{submission.chain}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm mb-3">
+                  <span className="text-gray-400">Target: ${(submission.targetRaise / 1000).toFixed(0)}K</span>
+                  <span className="text-gray-400">
+                    {new Date(submission.submittedAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleApprove(submission.id)}
+                    className="flex-1 flex items-center justify-center space-x-1 py-2 bg-green/20 text-green rounded-lg hover:bg-green/30 transition-colors"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Approve</span>
+                  </button>
+                  <button
+                    onClick={() => handleReject(submission.id)}
+                    className="flex-1 flex items-center justify-center space-x-1 py-2 bg-red/20 text-red rounded-lg hover:bg-red/30 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                    <span>Reject</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {filteredSubmissions.length === 0 && (
+              <div className="p-8 text-center text-gray-400">
+                No pending submissions found.
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b border-white/10">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center space-x-2 px-6 py-3 font-medium transition-colors ${
-                activeTab === tab.id
-                  ? 'text-electric-blue border-b-2 border-electric-blue'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <tab.icon className="w-5 h-5" />
-              <span>{tab.label}</span>
-            </button>
+        {/* User Management */}
+        <div className="glass-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold">User Management</h3>
+            <span className="text-sm text-gray-400">{users.length} users</span>
+          </div>
+
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search users..."
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm outline-none focus:border-blue/50"
+              />
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="text-left text-gray-400 text-sm border-b border-white/10">
+                  <th className="pb-3">Address</th>
+                  <th className="pb-3">Status</th>
+                  <th className="pb-3">Volume</th>
+                  <th className="pb-3">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsers.map((user) => (
+                  <tr key={user.id} className="border-b border-white/10">
+                    <td className="py-3 font-mono text-sm">{user.address}</td>
+                    <td className="py-3">
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        user.status === 'active' ? 'bg-green/20 text-green' : 'bg-red/20 text-red'
+                      }`}>
+                        {user.status}
+                      </span>
+                    </td>
+                    <td className="py-3 text-gray-400">${(user.volume / 1000).toFixed(0)}K</td>
+                    <td className="py-3">
+                      <button
+                        onClick={() => toggleUserStatus(user.id)}
+                        className={`text-xs px-2 py-1 rounded ${
+                          user.status === 'active'
+                            ? 'bg-red/20 text-red hover:bg-red/30'
+                            : 'bg-green/20 text-green hover:bg-green/30'
+                        } transition-colors`}
+                      >
+                        {user.status === 'active' ? 'Suspend' : 'Activate'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {filteredUsers.length === 0 && (
+              <div className="p-8 text-center text-gray-400">
+                No users found.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* System Status */}
+      <div className="glass-card p-6">
+        <h3 className="font-semibold mb-4">System Status</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {systemStatus.map((system) => (
+            <div key={system.name} className="bg-white/5 rounded-lg p-4 border border-white/10">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium">{system.name}</span>
+                <div className={`w-2 h-2 rounded-full ${
+                  system.status === 'operational' ? 'bg-green' : 'bg-yellow'
+                }`} />
+              </div>
+              <div className="text-sm text-gray-400">
+                Status: <span className={system.status === 'operational' ? 'text-green' : 'text-yellow'}>
+                  {system.status}
+                </span>
+              </div>
+              <div className="text-sm text-gray-400 mt-1">Uptime: {system.uptime}</div>
+            </div>
           ))}
-        </div>
-
-        {/* Projects Tab */}
-        {activeTab === 'projects' && (
-          <div className="glass-card p-6">
-            <h2 className="text-xl font-bold text-white mb-6">Project Submissions</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left px-6 py-4 text-gray-400 font-medium">Project</th>
-                    <th className="text-left px-6 py-4 text-gray-400 font-medium">Submitter</th>
-                    <th className="text-left px-6 py-4 text-gray-400 font-medium">Submitted</th>
-                    <th className="text-left px-6 py-4 text-gray-400 font-medium">Status</th>
-                    <th className="text-right px-6 py-4 text-gray-400 font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {submissions.map((submission) => (
-                    <tr key={submission.id} className="border-b border-white/5">
-                      <td className="px-6 py-4 text-white font-medium">{submission.name}</td>
-                      <td className="px-6 py-4 text-gray-300">{submission.submitter}</td>
-                      <td className="px-6 py-4 text-gray-400">{submission.submitted}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          submission.status === 'approved' ? 'bg-green-500/20 text-green-400' :
-                          submission.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
-                          'bg-yellow-500/20 text-yellow-400'
-                        }`}>
-                          {submission.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end space-x-2">
-                          <button className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                            <Eye className="w-4 h-4 text-gray-400" />
-                          </button>
-                          <button className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                            <Edit className="w-4 h-4 text-gray-400" />
-                          </button>
-                          {submission.status === 'pending' && (
-                            <>
-                              <button
-                                onClick={() => handleApprove(submission.id)}
-                                className="p-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 transition-colors"
-                              >
-                                <Check className="w-4 h-4 text-green-400" />
-                              </button>
-                              <button
-                                onClick={() => handleReject(submission.id)}
-                                className="p-2 bg-red-500/20 rounded-lg hover:bg-red-500/30 transition-colors"
-                              >
-                                <X className="w-4 h-4 text-red-400" />
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Tokens Tab */}
-        {activeTab === 'tokens' && (
-          <div className="glass-card p-6">
-            <h2 className="text-xl font-bold text-white mb-6">Token Management</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left px-6 py-4 text-gray-400 font-medium">Token</th>
-                    <th className="text-left px-6 py-4 text-gray-400 font-medium">Symbol</th>
-                    <th className="text-left px-6 py-4 text-gray-400 font-medium">Network</th>
-                    <th className="text-left px-6 py-4 text-gray-400 font-medium">Status</th>
-                    <th className="text-right px-6 py-4 text-gray-400 font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockProjects.map((project) => (
-                    <tr key={project.id} className="border-b border-white/5">
-                      <td className="px-6 py-4 text-white font-medium">{project.name}</td>
-                      <td className="px-6 py-4 text-gray-300">{project.symbol}</td>
-                      <td className="px-6 py-4 text-gray-400">{project.network}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          project.status === 'live' ? 'bg-green-500/20 text-green-400' :
-                          project.status === 'upcoming' ? 'bg-yellow-500/20 text-yellow-400' :
-                          'bg-gray-500/20 text-gray-400'
-                        }`}>
-                          {project.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end space-x-2">
-                          <button className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                            <Eye className="w-4 h-4 text-gray-400" />
-                          </button>
-                          <button className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                            <Edit className="w-4 h-4 text-gray-400" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Users Tab */}
-        {activeTab === 'users' && (
-          <div className="glass-card p-6">
-            <h2 className="text-xl font-bold text-white mb-6">User Management</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left px-6 py-4 text-gray-400 font-medium">User</th>
-                    <th className="text-left px-6 py-4 text-gray-400 font-medium">Email</th>
-                    <th className="text-left px-6 py-4 text-gray-400 font-medium">Role</th>
-                    <th className="text-left px-6 py-4 text-gray-400 font-medium">Status</th>
-                    <th className="text-right px-6 py-4 text-gray-400 font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { id: 1, name: 'Admin User', email: 'admin@nexora.io', role: 'Admin', status: 'active' },
-                    { id: 2, name: 'Project Owner', email: 'owner@project.io', role: 'User', status: 'active' },
-                    { id: 3, name: 'Referral Partner', email: 'partner@referral.io', role: 'Partner', status: 'active' },
-                  ].map((user) => (
-                    <tr key={user.id} className="border-b border-white/5">
-                      <td className="px-6 py-4 text-white font-medium">{user.name}</td>
-                      <td className="px-6 py-4 text-gray-300">{user.email}</td>
-                      <td className="px-6 py-4 text-gray-400">{user.role}</td>
-                      <td className="px-6 py-4">
-                        <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-medium">
-                          {user.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end space-x-2">
-                          <button className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                            <Edit className="w-4 h-4 text-gray-400" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Settings Tab */}
-        {activeTab === 'settings' && (
-          <div className="glass-card p-6">
-            <h2 className="text-xl font-bold text-white mb-6">Platform Settings</h2>
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-4">Commission Configuration</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Direct Referral Commission (%)</label>
-                    <input
-                      type="number"
-                      defaultValue="10"
-                      className="w-full bg-navy-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-electric-blue"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Maximum Referral Levels</label>
-                    <input
-                      type="number"
-                      defaultValue="5"
-                      className="w-full bg-navy-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-electric-blue"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-4">Project Approval</h3>
-                <div className="space-y-4">
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded border-white/20 bg-navy-900 text-electric-blue" />
-                    <span className="text-gray-300">Require audit verification</span>
-                  </label>
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded border-white/20 bg-navy-900 text-electric-blue" />
-                    <span className="text-gray-300">Manual approval required</span>
-                  </label>
-                </div>
-              </div>
-
-              <button className="btn-primary">Save Settings</button>
-            </div>
-          </div>
-        )}
-
-        <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500">
-            ⚠️ Demo platform - All admin actions are simulated. No real changes are made to any system.
-          </p>
         </div>
       </div>
     </div>
