@@ -6,16 +6,24 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'Arial', 'Helvetica', 'sans-serif'],
+      },
       colors: {
         navy: {
           900: '#0a0e1a',
-          800: '#0f1423',
-          700: '#1a1f35',
+          800: '#1A1E2C',
+          700: '#252A3A',
         },
         electric: {
           blue: '#00d4ff',
           purple: '#a855f7',
-          pink: '#ec4899',
+          pink: '#FF6B9D',
+        },
+        accent: {
+          pink: '#FF6B9D',
+          green: '#00D68F',
+          red: '#FF4757',
         }
       },
       backgroundImage: {

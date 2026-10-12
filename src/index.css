@@ -1,41 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-navy-900 text-white antialiased;
+    @apply bg-navy-800 text-white antialiased font-sans;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-glass backdrop-blur-lg border border-white/10 rounded-xl;
+    @apply bg-navy-900/80 backdrop-blur-lg border border-white/5 rounded-2xl;
   }
 
   .glow-border {
-    @apply border border-electric-blue/30 shadow-[0_0_15px_rgba(0,212,255,0.3)];
+    @apply border border-accent-pink/30 shadow-[0_0_20px_rgba(255,107,157,0.2)];
   }
 
   .btn-primary {
-    @apply bg-gradient-to-r from-electric-blue to-electric-purple text-white font-semibold px-6 py-3 rounded-lg hover:opacity-90 transition-all duration-300;
+    @apply bg-gradient-to-r from-accent-pink to-electric-purple text-white font-semibold px-6 py-3 rounded-xl hover:opacity-90 transition-all duration-300;
   }
 
   .btn-secondary {
-    @apply bg-white/10 border border-white/20 text-white font-semibold px-6 py-3 rounded-lg hover:bg-white/20 transition-all duration-300;
+    @apply bg-white/5 border border-white/10 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/10 transition-all duration-300;
   }
 
   .nav-link {
-    @apply text-gray-300 hover:text-white transition-colors duration-200;
+    @apply text-gray-400 hover:text-white transition-colors duration-200;
   }
 
   .nav-link.active {
-    @apply text-electric-blue;
+    @apply text-accent-pink;
+  }
+
+  .sidebar {
+    @apply bg-navy-900 border-r border-white/5;
+  }
+
+  .menu-item {
+    @apply flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all duration-200;
+  }
+
+  .menu-item.active {
+    @apply bg-accent-pink/10 text-accent-pink;
+  }
+
+  .status-dot {
+    @apply w-2 h-2 rounded-full bg-accent-green;
+  }
+
+  .token-row {
+    @apply grid grid-cols-12 gap-2 items-center py-3 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    @apply bg-gradient-to-r from-electric-blue via-electric-purple to-electric-pink bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-accent-pink via-electric-purple to-electric-blue bg-clip-text text-transparent;
+  }
+
+  .text-accent {
+    @apply text-accent-pink;
   }
 }

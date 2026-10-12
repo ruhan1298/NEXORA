@@ -137,7 +137,7 @@ const Launchpad: React.FC = () => {
               </div>
 
               <Link
-                to={`/token/${project.id}`}
+                to={`/project/${project.id}`}
                 className="btn-primary w-full flex items-center justify-center space-x-2"
               >
                 <span>View Details</span>

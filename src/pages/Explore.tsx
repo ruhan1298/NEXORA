@@ -1,199 +1,139 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Star, TrendingUp, TrendingDown, ArrowUpDown } from 'lucide-react';
+import { Search, Star, Flame, TrendingUp, BarChart3, ChevronRight, ArrowRight } from 'lucide-react';
 import { mockTokens } from '../data/mockData';
-import { useApp } from '../context/AppContext';
 
 const Explore: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'trending' | 'gainers' | 'new'>('trending');
   const [searchTerm, setSearchTerm] = useState('');
-  const [networkFilter, setNetworkFilter] = useState('all');
-  const [sortBy, setSortBy] = useState<'price' | 'marketCap' | 'volume' | 'liquidity'>('marketCap');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const { watchlist, addToWatchlist, removeFromWatchlist } = useApp();
 
-  const filteredTokens = mockTokens
-    .filter((token) => {
-      const matchesSearch = token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           token.symbol.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesNetwork = networkFilter === 'all' || token.network === networkFilter;
-      return matchesSearch && matchesNetwork;
-    })
-    .sort((a, b) => {
-      const modifier = sortOrder === 'asc' ? 1 : -1;
-      return (a[sortBy] - b[sortBy]) * modifier;
-    });
+  const tabs = [
+    { id: 'trending' as const, label: 'Trending', icon: Flame },
+    { id: 'gainers' as const, label: 'Top Gainers', icon: TrendingUp },
+    { id: 'new' as const, label: 'New Listings', icon: BarChart3 },
+  ];
 
-  const handleSort = (field: 'price' | 'marketCap' | 'volume' | 'liquidity') => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortOrder('desc');
-    }
-  };
-
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) return `$${(num / 1000000).toFixed(2)}M`;
-    if (num >= 1000) return `$${(num / 1000).toFixed(2)}K`;
-    return `$${num.toFixed(2)}`;
-  };
+  const filteredTokens = mockTokens.filter((token) =>
+    token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    token.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gradient mb-4">Explore Tokens</h1>
-          <p className="text-gray-400 text-lg">
-            Discover and analyze tokens across multiple blockchains
-          </p>
+    <div className="min-h-screen p-8">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-4xl font-bold text-white">Discover the market</h1>
+            <span className="flex items-center space-x-2">
+              <span className="w-3 h-3 bg-accent-green rounded-full animate-pulse" />
+              <span className="text-sm text-accent-green font-semibold">LIVE</span>
+            </span>
+          </div>
+          <p className="text-gray-400 mb-4">Stay ahead of the next wave.</p>
+          <button className="text-accent-pink font-medium flex items-center hover:underline">
+            Explore all tokens <ChevronRight className="w-5 h-5 ml-1" />
+          </button>
         </div>
 
-        {/* Search and Filter */}
-        <div className="glass-card p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search tokens by name or symbol..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-navy-900 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-electric-blue"
-              />
-            </div>
-            <select
-              value={networkFilter}
-              onChange={(e) => setNetworkFilter(e.target.value)}
-              className="bg-navy-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-electric-blue"
+        {/* Tabs */}
+        <div className="flex space-x-2 mb-6 bg-navy-900 p-1 rounded-xl">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                activeTab === tab.id
+                  ? 'bg-accent-pink text-white'
+                  : 'text-gray-400 hover:text-white'
+              }`}
             >
-              <option value="all">All Networks</option>
-              <option value="Ethereum">Ethereum</option>
-              <option value="BSC">BSC</option>
-              <option value="Polygon">Polygon</option>
-              <option value="Avalanche">Avalanche</option>
-            </select>
-          </div>
+              <tab.icon className="w-5 h-5" />
+              <span>{tab.label}</span>
+            </button>
+          ))}
         </div>
 
-        {/* Token Table */}
-        <div className="glass-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left px-6 py-4 text-gray-400 font-medium">Token</th>
-                  <th className="text-left px-6 py-4 text-gray-400 font-medium">Project</th>
-                  <th
-                    className="text-right px-6 py-4 text-gray-400 font-medium cursor-pointer hover:text-white"
-                    onClick={() => handleSort('price')}
-                  >
-                    <div className="flex items-center justify-end space-x-2">
-                      <span>Price</span>
-                      <ArrowUpDown className="w-4 h-4" />
-                    </div>
-                  </th>
-                  <th className="text-right px-6 py-4 text-gray-400 font-medium">24H Change</th>
-                  <th
-                    className="text-right px-6 py-4 text-gray-400 font-medium cursor-pointer hover:text-white"
-                    onClick={() => handleSort('marketCap')}
-                  >
-                    <div className="flex items-center justify-end space-x-2">
-                      <span>Market Cap</span>
-                      <ArrowUpDown className="w-4 h-4" />
-                    </div>
-                  </th>
-                  <th
-                    className="text-right px-6 py-4 text-gray-400 font-medium cursor-pointer hover:text-white"
-                    onClick={() => handleSort('volume')}
-                  >
-                    <div className="flex items-center justify-end space-x-2">
-                      <span>24H Volume</span>
-                      <ArrowUpDown className="w-4 h-4" />
-                    </div>
-                  </th>
-                  <th
-                    className="text-right px-6 py-4 text-gray-400 font-medium cursor-pointer hover:text-white"
-                    onClick={() => handleSort('liquidity')}
-                  >
-                    <div className="flex items-center justify-end space-x-2">
-                      <span>Liquidity</span>
-                      <ArrowUpDown className="w-4 h-4" />
-                    </div>
-                  </th>
-                  <th className="text-left px-6 py-4 text-gray-400 font-medium">Network</th>
-                  <th className="text-center px-6 py-4 text-gray-400 font-medium">Watchlist</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTokens.map((token) => (
-                  <tr key={token.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-4">
-                      <Link to={`/token/${token.id}`} className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-electric-blue to-electric-purple rounded-lg flex items-center justify-center text-xl">
-                          {token.logo}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-white">{token.name}</div>
-                          <div className="text-sm text-gray-400">{token.symbol}</div>
-                        </div>
-                      </Link>
-                    </td>
-                    <td className="px-6 py-4 text-gray-300">{token.project}</td>
-                    <td className="px-6 py-4 text-right font-medium text-white">${token.price.toFixed(2)}</td>
-                    <td className="px-6 py-4 text-right">
-                      <div className={`flex items-center justify-end space-x-1 ${
-                        token.change24h >= 0 ? 'text-green-400' : 'text-red-400'
-                      }`}>
-                        {token.change24h >= 0 ? (
-                          <TrendingUp className="w-4 h-4" />
-                        ) : (
-                          <TrendingDown className="w-4 h-4" />
-                        )}
-                        <span>{Math.abs(token.change24h).toFixed(2)}%</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right text-gray-300">{formatNumber(token.marketCap)}</td>
-                    <td className="px-6 py-4 text-right text-gray-300">{formatNumber(token.volume24h)}</td>
-                    <td className="px-6 py-4 text-right text-gray-300">{formatNumber(token.liquidity)}</td>
-                    <td className="px-6 py-4">
-                      <span className="px-3 py-1 bg-white/10 rounded-full text-sm text-gray-300">
-                        {token.network}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <button
-                        onClick={() => {
-                          if (watchlist.includes(token.id)) {
-                            removeFromWatchlist(token.id);
-                          } else {
-                            addToWatchlist(token.id);
-                          }
-                        }}
-                        className={`p-2 rounded-lg transition-colors ${
-                          watchlist.includes(token.id)
-                            ? 'text-yellow-400 hover:text-yellow-300'
-                            : 'text-gray-400 hover:text-yellow-400'
-                        }`}
-                      >
-                        <Star className={`w-5 h-5 ${watchlist.includes(token.id) ? 'fill-current' : ''}`} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search tokens..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-navy-900 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-accent-pink/50"
+          />
+        </div>
 
-          {filteredTokens.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-400 text-lg">No tokens found matching your criteria</p>
+        {/* Token List */}
+        <div className="glass-card mb-8 overflow-hidden">
+          <div className="grid grid-cols-12 gap-4 px-6 py-4 text-xs text-gray-500 uppercase tracking-wider border-b border-white/10">
+            <div className="col-span-1">#</div>
+            <div className="col-span-5">Token</div>
+            <div className="col-span-2 text-right">Price</div>
+            <div className="col-span-2 text-right">24h Change</div>
+            <div className="col-span-2 text-right">Market Cap</div>
+          </div>
+          {filteredTokens.map((token, index) => (
+            <Link
+              key={token.id}
+              to={`/token/${token.id}`}
+              className="grid grid-cols-12 gap-4 items-center px-6 py-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
+            >
+              <div className="col-span-1 flex items-center space-x-2">
+                <span className="text-gray-500">{index + 1}</span>
+                <Star className="w-4 h-4 text-gray-600" />
+              </div>
+              <div className="col-span-5 flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-accent-pink to-electric-purple rounded-full flex items-center justify-center text-xl">
+                  {token.logo}
+                </div>
+                <div>
+                  <div className="font-semibold text-white">{token.name}</div>
+                  <div className="text-sm text-gray-400">{token.symbol}</div>
+                </div>
+              </div>
+              <div className="col-span-2 text-right font-medium text-white">${token.price.toFixed(4)}</div>
+              <div className={`col-span-2 text-right font-medium ${
+                token.change24h >= 0 ? 'text-accent-green' : 'text-accent-red'
+              }`}>
+                {token.change24h >= 0 ? '+' : ''}{token.change24h.toFixed(2)}%
+              </div>
+              <div className="col-span-2 text-right text-gray-400">
+                ${(token.marketCap / 1000000).toFixed(1)}M
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* CTA Section */}
+        <div className="glass-card p-8 mb-8 text-center">
+          <h2 className="text-2xl font-bold text-white mb-2">Your next big idea starts here.</h2>
+          <p className="text-gray-400 mb-6">Launch your project. Build your community. Shape the future.</p>
+          <Link to="/submit" className="btn-primary inline-flex items-center space-x-2">
+            <span>Submit a project</span>
+            <ArrowRight className="w-5 h-5" />
+          </Link>
+        </div>
+
+        {/* Referral Program */}
+        <div className="glass-card p-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-xl font-bold text-white mb-1">Referral program</h3>
+              <p className="text-xs text-gray-500 uppercase tracking-wider">MLM PROJECT REFERRAL PROGRAM</p>
             </div>
-          )}
+            <Link to="/mlm-community" className="text-accent-pink font-medium flex items-center hover:underline">
+              Dashboard preview <ChevronRight className="w-5 h-5 ml-1" />
+            </Link>
+          </div>
+          <p className="text-gray-400">Bring Projects. Earn Commissions. Build Your Network.</p>
         </div>
 
         <div className="mt-8 text-center">
           <p className="text-xs text-gray-500">
-            ⚠️ Demo platform - All token data and prices are fictional for demonstration purposes
+            ⚠️ Demo platform - All data is fictional for demonstration purposes
           </p>
         </div>
       </div>
